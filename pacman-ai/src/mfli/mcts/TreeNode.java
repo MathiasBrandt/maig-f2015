@@ -3,7 +3,6 @@ package mfli.mcts;
 import java.util.Collection;
 import java.util.HashMap;
 
-import pacman.entries.pacman.mfli.MCTSPacman;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 

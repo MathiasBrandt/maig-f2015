@@ -1,7 +1,5 @@
-package pacman.entries.pacman.mfli;
+package mfli.mcts;
 
-import mfli.mcts.Simulator;
-import mfli.mcts.TreeNode;
 import pacman.controllers.Controller;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;

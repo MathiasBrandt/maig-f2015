@@ -1,12 +1,7 @@
-package pacman.entries.pacman.mfli;
+package mfli.behaviortree;
 
 import java.util.HashMap;
 
-import mfli.behaviortree.Constants;
-import mfli.behaviortree.Leaf;
-import mfli.behaviortree.Node;
-import mfli.behaviortree.SelectorNode;
-import mfli.behaviortree.SequenceNode;
 import pacman.controllers.Controller;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
