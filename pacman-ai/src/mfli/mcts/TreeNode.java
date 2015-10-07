@@ -3,6 +3,7 @@ package mfli.mcts;
 import java.util.Collection;
 import java.util.HashMap;
 
+import pacman.entries.pacman.mfli.MCTSPacman;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
@@ -16,6 +17,7 @@ public class TreeNode {
 	public TreeNode(TreeNode parent, MOVE move) {
 		this.parent = parent;
 		this.move = move;
+		this.visitCount = 1;
 	}
 	
 	public MOVE getMove() {
@@ -49,15 +51,13 @@ public class TreeNode {
 	 * @return
 	 */
 	public TreeNode getBestChild() {
-//		return node.getAverageScore() + Math.sqrt(2 * Math.log(node.getParent().getNumberOfVisits()) / node.getNumberOfVisits());
-		
 		TreeNode bestChild = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
 		
 		for(TreeNode child : children.values()) {
-			if(child.getScore() > bestValue) {
+			if(child.getUCBScore() > bestValue) {
 				bestChild = child;
-				bestValue = child.getScore();
+				bestValue = child.getTotalScore();
 			}
 		}
 		
@@ -68,11 +68,20 @@ public class TreeNode {
 		this.score += score;
 	}
 	
-	public double getScore() {
+	public double getTotalScore() {
 		return score;
+	}
+	
+	public double getUCBScore() {
+		return score + MCTSPacman.C_VALUE * Math.sqrt(2 * Math.log(parent.getVisitCount()) / visitCount);
+//		return score;
 	}
 	
 	public void incrementVisitCount() {
 		visitCount++;
+	}
+	
+	public int getVisitCount() {
+		return visitCount;
 	}
 }

@@ -2,6 +2,7 @@ package mfli.mcts;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Stack;
 
 import pacman.controllers.Controller;
 import pacman.controllers.examples.StarterGhosts;
@@ -12,7 +13,8 @@ import pacman.game.Game;
 
 public class Simulator {
 	private Game game;
-	private Game savedGame;
+//	private Game savedGame;
+	private Stack<Game> savedGameStates;
 	private Controller<EnumMap<GHOST, MOVE>> ghostController;
 	private Controller<MOVE> pacManController;
 	private TreeNode root;
@@ -23,7 +25,8 @@ public class Simulator {
 		pacManController = new StarterPacMan();
 		this.game = game;
 		root = new TreeNode(null, MOVE.NEUTRAL);
-		maxSimulationCount = 50;
+		maxSimulationCount = 100;
+		savedGameStates = new Stack<Game>();
 	}
 	
 	public void updateGameState(Game game) {
@@ -130,10 +133,10 @@ public class Simulator {
 		MOVE lastMove = game.getPacmanLastMoveMade();
 		MOVE[] possibleMoves = game.getPossibleMoves(currentPosition);
 		
-		System.out.println("Last move: " + lastMove);
-		System.out.print("Possible moves: ");
-		for(MOVE m : possibleMoves) { System.out.print(m + " "); }
-		System.out.println();
+//		System.out.println("Last move: " + lastMove);
+//		System.out.print("Possible moves: ");
+//		for(MOVE m : possibleMoves) { System.out.print(m + " "); }
+//		System.out.println();
 		
 		// if the last move pac-man made is not in the list of possible moves,
 		// we are going into a wall
@@ -151,13 +154,13 @@ public class Simulator {
 		double bestValue = Double.NEGATIVE_INFINITY;
 		
 		for(TreeNode child : root.getChildren()) {
-			if(child.getScore() > bestValue) {
+			if(child.getTotalScore() > bestValue) {	// use average instead?
 				bestChild = child;
-				bestValue = child.getScore();
+				bestValue = child.getTotalScore();
 			}
 		}
 		
-		System.out.println("best move: " + bestChild.getMove());
+//		System.out.println("Best move: " + bestChild.getMove());
 		return bestChild;
 	}
 	
@@ -186,12 +189,17 @@ public class Simulator {
 	}
 	
 	public void saveGameState() {
-		savedGame = game;
+//		savedGame = game;
+//		game = game.copy();
+		
+		savedGameStates.push(game);
 		game = game.copy();
 	}
 	
 	public void loadGameState() {
-		game = savedGame;
+//		game = savedGame;
+		
+		game = savedGameStates.pop();
 	}
 	
 	public void setRoot(TreeNode root) {

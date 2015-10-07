@@ -10,6 +10,7 @@ public class MCTSPacman extends Controller<MOVE> {
 	private boolean firstNode = true;
 	private Simulator simulator;
 	private int timeBuffer = 10;
+	public static final double C_VALUE = 0.5;
 	
 	@Override
 	public MOVE getMove(Game game, long timeDue) {
@@ -46,8 +47,11 @@ public class MCTSPacman extends Controller<MOVE> {
 		// if we need to make a decision at the current point, get the best move from the simulator
 		// else, just keep going
 		if(simulator.isAtDecisionPoint()) {
+//			System.out.println("At Decision point");
 			TreeNode bestMove = simulator.getBestMove();
 			nextMove = bestMove.getMove();
+			simulator.setRoot(bestMove);
+//			System.out.println("Next move: " + nextMove);
 		}
 
 //		System.out.println("Simulation count: " + simulationCount);
