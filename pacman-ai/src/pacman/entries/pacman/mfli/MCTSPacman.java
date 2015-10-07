@@ -1,43 +1,53 @@
 package pacman.entries.pacman.mfli;
 
-import mfli.mcts.Tree;
+import mfli.mcts.Simulator;
 import mfli.mcts.TreeNode;
 import pacman.controllers.Controller;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 public class MCTSPacman extends Controller<MOVE> {
-
+	private boolean firstNode = true;
+	private Simulator simulator;
+	private int timeBuffer = 10;
+	
 	@Override
 	public MOVE getMove(Game game, long timeDue) {
-		
+		MOVE move = mcts(game, timeDue);
 
-		return null;
-	}
-	
-	public void mctsSearch(Game gameState) {
-		/**
-		 *   1.    Select node to expand
-		 *   2.    Expand node
-		 *   2.1    Foreach possible direction
-		 *   2.1.1   Simulate game until next junction by copying game state and stuff
-		 *   2.1.2   Create new TreeNode representing the junction
-		 *   2.1.3   Add TreeNode as child
-		 *   3     Simulate game from randomly chosen child
-		 *   4     Backpropagate result to root
-		 */
-		
-		
-//		TreeNode root = new TreeNode(null);
-		
-		// while there is time left
-//		while(true) {
-//			TreeNode nodeToExpand = treePolicy(root);
-//			nodeToExpand.expand();
-//			
-//			double reward = defaultPolicy();
-//			nodeToExpand.backpropagate();
-//		}
+		return move;
 	}
 
+	public MOVE mcts(Game game, long timeDue) {
+		MOVE nextMove = MOVE.NEUTRAL;
+
+		// game just started, decide on a move
+		if (firstNode) {
+			firstNode = false;
+			
+			simulator = new Simulator(game);
+
+			int playerPosition = game.getPacmanCurrentNodeIndex();
+			MOVE[] possibleMoves = game.getPossibleMoves(playerPosition);
+			nextMove = possibleMoves[1];
+
+			 simulator.playMove(nextMove);
+		} else {
+			 simulator.updateGameState(game);
+		}
+
+		// while we still have time left, run the simulation 
+		while (System.currentTimeMillis() < (timeDue - timeBuffer)) {
+			 simulator.simulate();
+		}
+
+		// if we need to make a decision at the current point, get the best move from the simulator
+		// else, just keep going
+		if(simulator.isAtDecisionPoint()) {
+			TreeNode bestMove = simulator.getBestMove();
+			nextMove = bestMove.getMove();
+		}
+
+		return nextMove;
+	}
 }

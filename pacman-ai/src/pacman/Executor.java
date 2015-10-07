@@ -16,7 +16,9 @@ import java.util.Random;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.examples.StarterGhosts;
+import pacman.entries.pacman.MyPacMan;
 import pacman.entries.pacman.mfli.BehaviorTreePacman;
+import pacman.entries.pacman.mfli.MCTSPacman;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
@@ -58,7 +60,9 @@ public class Executor
 		boolean visual=true;
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
-		exec.runGameTimed(new BehaviorTreePacman(), new StarterGhosts(), visual);
+//		exec.runGameTimed(new BehaviorTreePacman(), new StarterGhosts(), visual);
+		exec.runGameTimed(new MCTSPacman(), new StarterGhosts(), visual);
+//		exec.runGameTimed(new MyPacMan(), new StarterGhosts(), visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 		//*/
 		

@@ -1,54 +1,70 @@
 package mfli.mcts;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+
+import pacman.game.Constants.MOVE;
+import pacman.game.Game;
 
 public class TreeNode {
-	private ArrayList<TreeNode> children;
 	private TreeNode parent;
-	private double value;
+	private HashMap<MOVE, TreeNode> children;
+	private MOVE move;
+	private double score;
 	
-	public TreeNode(TreeNode parent) {
+	public TreeNode(TreeNode parent, MOVE move) {
 		this.parent = parent;
+		this.move = move;
 	}
 	
-	/**
-	 * Expands the node by going in all possible directions until reaching new junctions.
-	 */
-	public void expand() {
-		// expand current node by going in all possible directions until reaching new junctions.
-		// create new nodes for each junction.
-		// add new nodes as children.
-		
+	public MOVE getMove() {
+		return move;
 	}
 	
-	public void backpropagate() {
-		// update own q value based on children's values
-		double sum = value;
-		int childCount = 0;
-		if(children != null) {
-			for(TreeNode child : children) {
-				sum += child.getValue();
-			}
-			
-			childCount = children.size();
-		}
-		
-		value = sum / childCount + 1;
-		
-		if(parent != null) {
-			parent.backpropagate();
-		}
- 	}
-	
-	public double getValue() {
-		return value;
-	}
-	
-	public ArrayList<TreeNode> getChildren() {
+	public HashMap<MOVE, TreeNode> getChildren() {
 		return children;
+	}
+	
+	public TreeNode getParent() {
+		return parent;
 	}
 	
 	public boolean isLeaf() {
 		return children == null;
+	}
+	
+	public void expand(Game game) {
+		children = new HashMap<MOVE, TreeNode>();
+		int currentPosition = game.getPacmanCurrentNodeIndex();
+		MOVE[] possibleMoves = game.getPossibleMoves(currentPosition);
+		
+		for(MOVE move : possibleMoves) {
+			children.put(move, new TreeNode(this, move));
+		}
+	}
+	
+	/**
+	 * TreePolicy
+	 * @return
+	 */
+	public TreeNode getBestChild() {
+		TreeNode bestChild = null;
+		double bestValue = Double.NEGATIVE_INFINITY;
+		
+		for(TreeNode child : children.values()) {
+			if(child.getScore() > bestValue) {
+				bestChild = child;
+				bestValue = child.getScore();
+			}
+		}
+		
+		return bestChild;
+	}
+	
+	public void updateScore(double score) {
+		score += score;
+	}
+	
+	public double getScore() {
+		return score;
 	}
 }

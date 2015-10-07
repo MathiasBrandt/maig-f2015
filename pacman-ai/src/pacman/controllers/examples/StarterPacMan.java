@@ -38,7 +38,7 @@ public class StarterPacMan extends Controller<MOVE>
 			if(game.getGhostEdibleTime(ghost)>0)
 			{
 				int distance=game.getShortestPathDistance(current,game.getGhostCurrentNodeIndex(ghost));
-System.out.println("trolololo " + distance);
+
 				if(distance<minDistance)
 				{
 					minDistance=distance;
