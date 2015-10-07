@@ -61,7 +61,7 @@ public class TreeNode {
 	}
 	
 	public void updateScore(double score) {
-		score += score;
+		this.score += score;
 	}
 	
 	public double getScore() {

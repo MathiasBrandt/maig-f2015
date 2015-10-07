@@ -37,6 +37,8 @@ public class Simulator {
 		
 		TreeNode node = root;
 		
+		visitedNodes.add(node);
+		
 		// find the next decision point
 		playUntilDecisionPoint();
 		
@@ -44,6 +46,8 @@ public class Simulator {
 		// if we're not at a leaf, get the best child and play its move. Then, simulate until next decision point.
 		while(!node.isLeaf()) {
 			node = node.getBestChild();
+			
+			visitedNodes.add(node);
 			
 			playMove(node.getMove());
 			playUntilDecisionPoint();
@@ -54,6 +58,8 @@ public class Simulator {
 		
 		// select the best child of the newly expanded node
 		node = node.getBestChild();
+		
+		visitedNodes.add(node);
 		
 		// play the next move
 		playMove(node.getMove());
@@ -97,7 +103,16 @@ public class Simulator {
 	public boolean isAtDecisionPoint() {
 		int currentPosition = game.getPacmanCurrentNodeIndex();
 		
-		return game.isJunction(currentPosition) || isAtWall();
+		boolean a = game.isJunction(currentPosition);
+		boolean b = isAtWall();
+		
+		System.out.println("is at juncion: " + a);
+		System.out.println("is at wall: " + b);
+		
+		
+		return a || b;
+		
+//		return game.isJunction(currentPosition) || isAtWall();
 	}
 	
 	/**
