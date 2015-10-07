@@ -12,8 +12,17 @@ import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 public class Simulator {
+	public static final double C_VALUE = 3;
+	public static final int PILL_EATEN_BONUS = 20;
+	public static final int POWER_PILL_EATEN_BONUS = 50;
+	public static final int BLANK_PATH_PENALTY = 100;
+	public static final int GHOST_EATEN_BONUS = 500;
+	public static final int DEATH_PENALTY = 1000;
+	public static final int MIN_GHOST_DISTANCE = 10;
+	public static final int GHOST_DISTANCE_PENALTY = 300;
+	public static final int LEVEL_COMPLETED_BONUS = 5000;
+	
 	private Game game;
-//	private Game savedGame;
 	private Stack<Game> savedGameStates;
 	private Controller<EnumMap<GHOST, MOVE>> ghostController;
 	private Controller<MOVE> pacManController;
@@ -25,7 +34,7 @@ public class Simulator {
 		pacManController = new StarterPacMan();
 		this.game = game;
 		root = new TreeNode(null, MOVE.NEUTRAL);
-		maxSimulationCount = 100;
+		maxSimulationCount = 1000;
 		savedGameStates = new Stack<Game>();
 	}
 	
@@ -38,6 +47,7 @@ public class Simulator {
 		ArrayList<TreeNode> visitedNodes = new ArrayList<TreeNode>();
 		
 		int lifeCount = game.getPacmanNumberOfLivesRemaining();
+		int level = game.getCurrentLevel();
 		
 		// save the current game state
 		saveGameState();
@@ -47,7 +57,9 @@ public class Simulator {
 		visitedNodes.add(node);
 		
 		// find the next decision point
+//		int pathScore = playUntilDecisionPoint();
 		playUntilDecisionPoint();
+//		node.updateScore(pathScore);
 		
 		// find out what we should do at this decision point
 		// if we're not at a leaf, get the best child and play its move. Then, simulate until next decision point.
@@ -57,7 +69,9 @@ public class Simulator {
 			visitedNodes.add(node);
 			
 			playMove(node.getMove());
+//			pathScore = playUntilDecisionPoint(lifeCount);
 			playUntilDecisionPoint();
+//			node.updateScore(pathScore);
 		}
 		
 		// if we have reached a leaf, we don't know what to do -- so we expand the node to find out
@@ -73,7 +87,7 @@ public class Simulator {
 		playMove(node.getMove());
 		
 		// simulate to the end of the game, to determine the score of this move
-		double score = simulateEndGame(lifeCount);
+		double score = simulateEndGame(lifeCount, level);
 		
 		// backpropagate the score
 		for(TreeNode visitedNode : visitedNodes) {
@@ -83,6 +97,25 @@ public class Simulator {
 		
 		// reset the game state to what it was before the simulation
 		loadGameState();
+	}
+	
+	public double simulateEndGame(int lifeCount, int currentLevel) {		
+		int simulationCount = 0;
+		int bonus = 0;
+		
+		// simulate game until the level changes or pac-man has no lives left
+		while(simulationCount < maxSimulationCount && game.getCurrentLevel() == currentLevel && !game.gameOver()) {
+			game.advanceGame(pacManController.getMove(game, 0), ghostController.getMove(game, 0));
+			
+			bonus += getStepBonus(lifeCount, currentLevel);
+			
+			simulationCount++;
+		}
+		
+		double score = game.getScore();
+		score += bonus;
+		
+		return score;
 	}
 	
 	/**
@@ -111,17 +144,8 @@ public class Simulator {
 	 */
 	public boolean isAtDecisionPoint() {
 		int currentPosition = game.getPacmanCurrentNodeIndex();
-		
-		boolean a = game.isJunction(currentPosition);
-		boolean b = isAtWall();
-		
-//		System.out.println("is at juncion: " + a);
-//		System.out.println("is at wall: " + b);
-		
-		
-		return a || b;
-		
-//		return game.isJunction(currentPosition) || isAtWall();
+
+		return game.isJunction(currentPosition) || isAtWall();
 	}
 	
 	/**
@@ -132,11 +156,6 @@ public class Simulator {
 		int currentPosition = game.getPacmanCurrentNodeIndex();
 		MOVE lastMove = game.getPacmanLastMoveMade();
 		MOVE[] possibleMoves = game.getPossibleMoves(currentPosition);
-		
-//		System.out.println("Last move: " + lastMove);
-//		System.out.print("Possible moves: ");
-//		for(MOVE m : possibleMoves) { System.out.print(m + " "); }
-//		System.out.println();
 		
 		// if the last move pac-man made is not in the list of possible moves,
 		// we are going into a wall
@@ -154,9 +173,13 @@ public class Simulator {
 		double bestValue = Double.NEGATIVE_INFINITY;
 		
 		for(TreeNode child : root.getChildren()) {
-			if(child.getTotalScore() > bestValue) {	// use average instead?
+			double childScore = child.getAverageScore();
+			
+//			System.out.println("Move: " + child.getMove() + ", score: " + childScore);
+			
+			if(childScore > bestValue) {	// use average instead?
 				bestChild = child;
-				bestValue = child.getTotalScore();
+				bestValue = childScore;
 			}
 		}
 		
@@ -164,45 +187,70 @@ public class Simulator {
 		return bestChild;
 	}
 	
-	public double simulateEndGame(int lifeCount) {
-		int currentLevel = game.getCurrentLevel();
-		
-		double score = 0;
-		
-		// check if simulation resulted in a death
-		if(lifeCount > game.getPacmanNumberOfLivesRemaining()) {
-			score -= 10000;
-		}
-		
-		int simulationCount = 0;
-		
-		// simulate game until the level changes or pac-man has no lives left
-		while(simulationCount < maxSimulationCount && game.getCurrentLevel() == currentLevel && !game.gameOver()) {
-			game.advanceGame(pacManController.getMove(game, 0), ghostController.getMove(game, 0));
-			
-			simulationCount++;
-		}
-		
-		score += game.getScore();
-		
-		return score;
-	}
-	
 	public void saveGameState() {
-//		savedGame = game;
-//		game = game.copy();
-		
 		savedGameStates.push(game);
 		game = game.copy();
 	}
 	
 	public void loadGameState() {
-//		game = savedGame;
-		
 		game = savedGameStates.pop();
 	}
 	
 	public void setRoot(TreeNode root) {
 		this.root = root;
+	}
+	
+	public int distanceToGhost(GHOST ghost) {
+		int pacManPosition = game.getPacmanCurrentNodeIndex();
+		int ghostPosition = game.getGhostCurrentNodeIndex(ghost);
+		
+		int distance = game.getShortestPathDistance(pacManPosition, ghostPosition);
+		
+		return distance;
+	}
+	
+	public int getStepBonus(int lifeCount, int currentLevel) {
+		int pathBonus = 0;
+		int pillBonus = 0;
+		
+		if(game.wasPillEaten()) {
+			pillBonus = PILL_EATEN_BONUS;
+		} else if (game.wasPowerPillEaten()) {
+			pillBonus = POWER_PILL_EATEN_BONUS;
+		} else {
+			pillBonus = BLANK_PATH_PENALTY;
+		}
+		
+		pathBonus += pillBonus;
+		
+		for(GHOST ghost : GHOST.values()) {
+			if(game.wasGhostEaten(ghost)) {
+				pathBonus += GHOST_EATEN_BONUS;
+			}
+			
+			if(game.getGhostLairTime(ghost) <= 0) {
+				int distanceToGhost = distanceToGhost(ghost);
+				if(distanceToGhost < MIN_GHOST_DISTANCE) {
+					if(!game.isGhostEdible(ghost)) {
+						pathBonus -= GHOST_DISTANCE_PENALTY;
+					} else {
+						pathBonus += GHOST_DISTANCE_PENALTY;
+					}
+				}
+			}
+		}
+		
+		if(lifeCount > game.getPacmanNumberOfLivesRemaining()) {
+			pathBonus -= DEATH_PENALTY;
+		}
+		
+		if(currentLevel < game.getCurrentLevel()) {
+			pathBonus += LEVEL_COMPLETED_BONUS;
+			System.out.println("WOW!!");
+		}
+		
+//		System.out.println("PATH BONUS: " + pathBonus);
+		
+		return pathBonus;
 	}
 }

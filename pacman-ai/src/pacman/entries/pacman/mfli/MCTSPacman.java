@@ -9,8 +9,7 @@ import pacman.game.Game;
 public class MCTSPacman extends Controller<MOVE> {
 	private boolean firstNode = true;
 	private Simulator simulator;
-	private int timeBuffer = 10;
-	public static final double C_VALUE = 0.5;
+	private int timeBuffer = 2;
 	
 	@Override
 	public MOVE getMove(Game game, long timeDue) {

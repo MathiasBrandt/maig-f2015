@@ -11,7 +11,7 @@ public class TreeNode {
 	private TreeNode parent;
 	private HashMap<MOVE, TreeNode> children;
 	private MOVE move;
-	private double score;
+	private double totalScore;
 	private int visitCount;
 	
 	public TreeNode(TreeNode parent, MOVE move) {
@@ -55,9 +55,13 @@ public class TreeNode {
 		double bestValue = Double.NEGATIVE_INFINITY;
 		
 		for(TreeNode child : children.values()) {
-			if(child.getUCBScore() > bestValue) {
+			double childScore = child.getUCBScore();
+			
+//			System.out.println(childScore);
+			
+			if(childScore > bestValue) {
 				bestChild = child;
-				bestValue = child.getTotalScore();
+				bestValue = childScore;
 			}
 		}
 		
@@ -65,16 +69,21 @@ public class TreeNode {
 	}
 	
 	public void updateScore(double score) {
-		this.score += score;
+		this.totalScore += score;
+		
+//		System.out.println(totalScore);
 	}
 	
 	public double getTotalScore() {
-		return score;
+		return totalScore;
+	}
+	
+	public double getAverageScore() {
+		return totalScore / visitCount;
 	}
 	
 	public double getUCBScore() {
-		return score + MCTSPacman.C_VALUE * Math.sqrt(2 * Math.log(parent.getVisitCount()) / visitCount);
-//		return score;
+		return getTotalScore() + Simulator.C_VALUE * Math.sqrt(2 * Math.log(parent.getVisitCount()) / visitCount);
 	}
 	
 	public void incrementVisitCount() {

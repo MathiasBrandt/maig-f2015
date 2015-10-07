@@ -62,6 +62,7 @@ public class Executor
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 //		exec.runGameTimed(new BehaviorTreePacman(), new StarterGhosts(), visual);
 		exec.runGameTimed(new MCTSPacman(), new StarterGhosts(), visual);
+//		exec.runGameTimedSpeedOptimised(new MCTSPacman(), new StarterGhosts(), false, visual);
 //		exec.runGameTimed(new MyPacMan(), new StarterGhosts(), visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 		//*/
