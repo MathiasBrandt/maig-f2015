@@ -1,5 +1,6 @@
 package mfli.mcts;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import pacman.game.Constants.MOVE;
@@ -10,6 +11,7 @@ public class TreeNode {
 	private HashMap<MOVE, TreeNode> children;
 	private MOVE move;
 	private double score;
+	private int visitCount;
 	
 	public TreeNode(TreeNode parent, MOVE move) {
 		this.parent = parent;
@@ -20,8 +22,8 @@ public class TreeNode {
 		return move;
 	}
 	
-	public HashMap<MOVE, TreeNode> getChildren() {
-		return children;
+	public Collection<TreeNode> getChildren() {
+		return children.values();
 	}
 	
 	public TreeNode getParent() {
@@ -47,6 +49,8 @@ public class TreeNode {
 	 * @return
 	 */
 	public TreeNode getBestChild() {
+//		return node.getAverageScore() + Math.sqrt(2 * Math.log(node.getParent().getNumberOfVisits()) / node.getNumberOfVisits());
+		
 		TreeNode bestChild = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
 		
@@ -66,5 +70,9 @@ public class TreeNode {
 	
 	public double getScore() {
 		return score;
+	}
+	
+	public void incrementVisitCount() {
+		visitCount++;
 	}
 }

@@ -19,6 +19,7 @@ public class MCTSPacman extends Controller<MOVE> {
 	}
 
 	public MOVE mcts(Game game, long timeDue) {
+		int simulationCount = 0;
 		MOVE nextMove = MOVE.NEUTRAL;
 
 		// game just started, decide on a move
@@ -38,7 +39,8 @@ public class MCTSPacman extends Controller<MOVE> {
 
 		// while we still have time left, run the simulation 
 		while (System.currentTimeMillis() < (timeDue - timeBuffer)) {
-			 simulator.simulate();
+			simulationCount++;
+			simulator.simulate();
 		}
 
 		// if we need to make a decision at the current point, get the best move from the simulator
@@ -48,6 +50,8 @@ public class MCTSPacman extends Controller<MOVE> {
 			nextMove = bestMove.getMove();
 		}
 
+//		System.out.println("Simulation count: " + simulationCount);
+		
 		return nextMove;
 	}
 }

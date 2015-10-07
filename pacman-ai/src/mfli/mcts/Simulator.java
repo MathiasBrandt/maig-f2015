@@ -16,12 +16,14 @@ public class Simulator {
 	private Controller<EnumMap<GHOST, MOVE>> ghostController;
 	private Controller<MOVE> pacManController;
 	private TreeNode root;
+	private int maxSimulationCount;
 	
 	public Simulator(Game game) {
 		ghostController = new StarterGhosts();
 		pacManController = new StarterPacMan();
 		this.game = game;
 		root = new TreeNode(null, MOVE.NEUTRAL);
+		maxSimulationCount = 50;
 	}
 	
 	public void updateGameState(Game game) {
@@ -31,6 +33,8 @@ public class Simulator {
 	public void simulate() {
 		// keep track of which nodes we visit so we can backpropagate score later
 		ArrayList<TreeNode> visitedNodes = new ArrayList<TreeNode>();
+		
+		int lifeCount = game.getPacmanNumberOfLivesRemaining();
 		
 		// save the current game state
 		saveGameState();
@@ -54,6 +58,7 @@ public class Simulator {
 		}
 		
 		// if we have reached a leaf, we don't know what to do -- so we expand the node to find out
+		
 		node.expand(game);
 		
 		// select the best child of the newly expanded node
@@ -65,10 +70,11 @@ public class Simulator {
 		playMove(node.getMove());
 		
 		// simulate to the end of the game, to determine the score of this move
-		double score = simulateEndGame();
+		double score = simulateEndGame(lifeCount);
 		
 		// backpropagate the score
 		for(TreeNode visitedNode : visitedNodes) {
+			visitedNode.incrementVisitCount();
 			visitedNode.updateScore(score);
 		}
 		
@@ -106,8 +112,8 @@ public class Simulator {
 		boolean a = game.isJunction(currentPosition);
 		boolean b = isAtWall();
 		
-		System.out.println("is at juncion: " + a);
-		System.out.println("is at wall: " + b);
+//		System.out.println("is at juncion: " + a);
+//		System.out.println("is at wall: " + b);
 		
 		
 		return a || b;
@@ -124,6 +130,11 @@ public class Simulator {
 		MOVE lastMove = game.getPacmanLastMoveMade();
 		MOVE[] possibleMoves = game.getPossibleMoves(currentPosition);
 		
+		System.out.println("Last move: " + lastMove);
+		System.out.print("Possible moves: ");
+		for(MOVE m : possibleMoves) { System.out.print(m + " "); }
+		System.out.println();
+		
 		// if the last move pac-man made is not in the list of possible moves,
 		// we are going into a wall
 		for(MOVE move : possibleMoves) {
@@ -139,25 +150,39 @@ public class Simulator {
 		TreeNode bestChild = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
 		
-		for(TreeNode child : root.getChildren().values()) {
+		for(TreeNode child : root.getChildren()) {
 			if(child.getScore() > bestValue) {
 				bestChild = child;
 				bestValue = child.getScore();
 			}
 		}
 		
+		System.out.println("best move: " + bestChild.getMove());
 		return bestChild;
 	}
 	
-	public double simulateEndGame() {
+	public double simulateEndGame(int lifeCount) {
 		int currentLevel = game.getCurrentLevel();
 		
-		// simulate game until the level changes or pac-man has no lives left
-		while(game.getCurrentLevel() == currentLevel && !game.gameOver()) {
-			game.advanceGame(pacManController.getMove(game, 0), ghostController.getMove(game, 0));
+		double score = 0;
+		
+		// check if simulation resulted in a death
+		if(lifeCount > game.getPacmanNumberOfLivesRemaining()) {
+			score -= 10000;
 		}
 		
-		return game.getScore();
+		int simulationCount = 0;
+		
+		// simulate game until the level changes or pac-man has no lives left
+		while(simulationCount < maxSimulationCount && game.getCurrentLevel() == currentLevel && !game.gameOver()) {
+			game.advanceGame(pacManController.getMove(game, 0), ghostController.getMove(game, 0));
+			
+			simulationCount++;
+		}
+		
+		score += game.getScore();
+		
+		return score;
 	}
 	
 	public void saveGameState() {
