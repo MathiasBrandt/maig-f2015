@@ -13,12 +13,11 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Random;
 
-import mfli.behaviortree.BehaviorTreePacman;
-import mfli.mcts.MCTSPacman;
+import mfli.behaviortree.BehaviorTreePacmanV2;
+import mfli.behaviortree.BehaviorTreeParameters;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.examples.StarterGhosts;
-import pacman.entries.pacman.MyPacMan;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
@@ -57,11 +56,15 @@ public class Executor
 		
 		///*
 		//run the game in asynchronous mode.
+		BehaviorTreeParameters params = new BehaviorTreeParameters();
+		params.distance_attack = 0;
+		params.distance_eat = 0;
+		params.distance_flee = 15;
 		boolean visual=true;
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
-//		exec.runGameTimed(new BehaviorTreePacman(), new StarterGhosts(), visual);
-		exec.runGameTimed(new MCTSPacman(), new StarterGhosts(), visual);
+		exec.runGameTimed(new BehaviorTreePacmanV2(params), new StarterGhosts(), visual);
+//		exec.runGameTimed(new MCTSPacman(), new StarterGhosts(), visual);
 //		exec.runGameTimedSpeedOptimised(new MCTSPacman(), new StarterGhosts(), false, visual);
 //		exec.runGameTimed(new MyPacMan(), new StarterGhosts(), visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	

@@ -12,4 +12,7 @@ public class Constants {
 	public static String MIN_POWER_PILL_DISTANCE_BEFORE_EAT = "MIN_POWER_PILL_DISTANCE";
 	public static String NEAREST_PILL_LOCATION = "NEAREST_PILL_LOCATION";
 	public static String NEAREST_PILL_DISTANCE = "NEAREST_PILL_DISTANCE";
+	
+	public static String NEXT_MOVE = "NEXT_MOVE";
+	public static String THREATENING_GHOSTS = "THREATENING_GHOSTS";
 }
