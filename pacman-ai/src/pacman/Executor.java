@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Random;
 
-import mfli.behaviortree.BehaviorTreePacmanV2;
+import mfli.behaviortree.BehaviorTreePacman;
 import mfli.behaviortree.BehaviorTreeParameters;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
@@ -57,13 +57,14 @@ public class Executor
 		///*
 		//run the game in asynchronous mode.
 		BehaviorTreeParameters params = new BehaviorTreeParameters();
-		params.distance_attack = 0;
-		params.distance_eat = 0;
-		params.distance_flee = 15;
+		params.distance_attack = 75;
+		params.distance_eat_power_pill = 30;
+		params.distance_flee = 10;
 		boolean visual=true;
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 		exec.runGameTimed(new BehaviorTreePacmanV2(params), new StarterGhosts(), visual);
+//		exec.runGameTimed(new BehaviorTreePacman(), new StarterGhosts(), visual);
 //		exec.runGameTimed(new MCTSPacman(), new StarterGhosts(), visual);
 //		exec.runGameTimedSpeedOptimised(new MCTSPacman(), new StarterGhosts(), false, visual);
 //		exec.runGameTimed(new MyPacMan(), new StarterGhosts(), visual);
