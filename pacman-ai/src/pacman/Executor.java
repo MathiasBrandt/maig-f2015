@@ -14,6 +14,7 @@ import java.util.EnumMap;
 import java.util.Random;
 
 import mfli.behaviortree.BehaviorTreePacman;
+import mfli.behaviortree.BehaviorTreePacmanV2;
 import mfli.behaviortree.BehaviorTreeParameters;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
