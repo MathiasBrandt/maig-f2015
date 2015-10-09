@@ -18,6 +18,7 @@ import mfli.behaviortree.BehaviorTreePacmanV2;
 import mfli.behaviortree.BehaviorTreeParameters;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
+import pacman.controllers.examples.Legacy2TheReckoning;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -58,13 +59,13 @@ public class Executor
 		///*
 		//run the game in asynchronous mode.
 		BehaviorTreeParameters params = new BehaviorTreeParameters();
-		params.distance_flee = 10;				// 10
-		params.distance_attack = 63;			// 75
-		params.distance_eat_power_pill = 93;	// 30
+		params.distance_flee = 10;				// 10	// 10
+		params.distance_attack = 63;			// 75	// 63
+		params.distance_eat_power_pill = 93;	// 30	// 93
 		boolean visual=true;
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
-		exec.runGameTimed(new BehaviorTreePacmanV2(params), new StarterGhosts(), visual);
+		exec.runGameTimed(new BehaviorTreePacmanV2(params), new Legacy2TheReckoning(), visual);
 //		exec.runGameTimed(new BehaviorTreePacman(), new StarterGhosts(), visual);
 //		exec.runGameTimed(new MCTSPacman(), new StarterGhosts(), visual);
 //		exec.runGameTimedSpeedOptimised(new MCTSPacman(), new StarterGhosts(), false, visual);

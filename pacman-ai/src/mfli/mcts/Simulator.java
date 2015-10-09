@@ -14,7 +14,7 @@ import pacman.game.Game;
 public class Simulator {
 	public static final double C_VALUE = 3;
 	public static final int PILL_EATEN_BONUS = 20;
-	public static final int POWER_PILL_EATEN_BONUS = 50;
+	public static final int POWER_PILL_EATEN_BONUS = 100;
 	public static final int BLANK_PATH_PENALTY = 100;
 	public static final int GHOST_EATEN_BONUS = 500;
 	public static final int DEATH_PENALTY = 1000;
@@ -246,7 +246,6 @@ public class Simulator {
 		
 		if(currentLevel < game.getCurrentLevel()) {
 			pathBonus += LEVEL_COMPLETED_BONUS;
-			System.out.println("WOW!!");
 		}
 		
 //		System.out.println("PATH BONUS: " + pathBonus);
