@@ -82,7 +82,7 @@ public class TreeNode {
 	}
 	
 	public double getUCBScore() {
-		return getTotalScore() + Simulator.C_VALUE * Math.sqrt(2 * Math.log(parent.getVisitCount()) / visitCount);
+		return getAverageScore() + Simulator.C_VALUE * Math.sqrt(2 * Math.log(parent.getVisitCount()) / visitCount);
 	}
 	
 	public void incrementVisitCount() {
