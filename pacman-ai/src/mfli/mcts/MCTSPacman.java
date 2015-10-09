@@ -1,3 +1,8 @@
+/**
+ * Mathias Flink Brandt
+ * mfli@itu.dk
+ */
+
 package mfli.mcts;
 
 import pacman.controllers.Controller;
@@ -16,6 +21,12 @@ public class MCTSPacman extends Controller<MOVE> {
 		return move;
 	}
 
+	/**
+	 * Run a Monte Carlo simulation to determine the next move.
+	 * @param game The current game state.
+	 * @param timeDue Time stamp before which the next move must be returned.
+	 * @return Returns the next move.
+	 */
 	public MOVE mcts(Game game, long timeDue) {
 		int simulationCount = 0;
 		MOVE nextMove = MOVE.NEUTRAL;

@@ -1,3 +1,8 @@
+/**
+ * Mathias Flink Brandt
+ * mfli@itu.dk
+ */
+
 package mfli.behaviortree;
 
 public class BehaviorTreeParameters {
@@ -5,8 +10,7 @@ public class BehaviorTreeParameters {
 	public int distance_attack;
 	public int distance_eat_power_pill;
 	
-	public BehaviorTreeParameters() {
-	}
+	public BehaviorTreeParameters() { }
 	
 	public BehaviorTreeParameters(int... values) {
 		this.distance_flee = values[0];

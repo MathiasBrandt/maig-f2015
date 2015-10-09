@@ -1,3 +1,8 @@
+/**
+ * Mathias Flink Brandt
+ * mfli@itu.dk
+ */
+
 package mfli.evolution;
 
 public class Gene implements Comparable<Gene> {

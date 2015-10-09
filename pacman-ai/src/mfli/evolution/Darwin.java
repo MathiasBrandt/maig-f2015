@@ -1,3 +1,8 @@
+/**
+ * Mathias Flink Brandt
+ * mfli@itu.dk
+ */
+
 package mfli.evolution;
 
 import static pacman.game.Constants.DELAY;

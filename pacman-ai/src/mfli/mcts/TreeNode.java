@@ -1,3 +1,8 @@
+/**
+ * Mathias Flink Brandt
+ * mfli@itu.dk
+ */
+
 package mfli.mcts;
 
 import java.util.Collection;
@@ -35,6 +40,10 @@ public class TreeNode {
 		return children == null;
 	}
 	
+	/**
+	 * Expands the node by adding all possible moves from the current node as children.
+	 * @param game The current game state.
+	 */
 	public void expand(Game game) {
 		children = new HashMap<MOVE, TreeNode>();
 		int currentPosition = game.getPacmanCurrentNodeIndex();
@@ -47,7 +56,8 @@ public class TreeNode {
 	
 	/**
 	 * TreePolicy
-	 * @return
+	 * Determine the best child based on UCB value.
+	 * @return The best child.
 	 */
 	public TreeNode getBestChild() {
 		TreeNode bestChild = null;
@@ -81,6 +91,10 @@ public class TreeNode {
 		return totalScore / visitCount;
 	}
 	
+	/**
+	 * Calculate the UCB score of the current node.
+	 * @return Returns the UCB score.
+	 */
 	public double getUCBScore() {
 		return getAverageScore() + Simulator.C_VALUE * Math.sqrt(2 * Math.log(parent.getVisitCount()) / visitCount);
 	}

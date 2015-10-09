@@ -1,3 +1,8 @@
+/**
+ * Mathias Flink Brandt
+ * mfli@itu.dk
+ */
+
 package mfli.mcts;
 
 import java.util.ArrayList;
@@ -42,6 +47,9 @@ public class Simulator {
 		this.game = game;
 	}
 	
+	/**
+	 * Run the Monte Carlo simulation.
+	 */
 	public void simulate() {
 		// keep track of which nodes we visit so we can backpropagate score later
 		ArrayList<TreeNode> visitedNodes = new ArrayList<TreeNode>();
@@ -57,9 +65,7 @@ public class Simulator {
 		visitedNodes.add(node);
 		
 		// find the next decision point
-//		int pathScore = playUntilDecisionPoint();
 		playUntilDecisionPoint();
-//		node.updateScore(pathScore);
 		
 		// find out what we should do at this decision point
 		// if we're not at a leaf, get the best child and play its move. Then, simulate until next decision point.
@@ -69,13 +75,10 @@ public class Simulator {
 			visitedNodes.add(node);
 			
 			playMove(node.getMove());
-//			pathScore = playUntilDecisionPoint(lifeCount);
 			playUntilDecisionPoint();
-//			node.updateScore(pathScore);
 		}
 		
 		// if we have reached a leaf, we don't know what to do -- so we expand the node to find out
-		
 		node.expand(game);
 		
 		// select the best child of the newly expanded node
@@ -99,6 +102,12 @@ public class Simulator {
 		loadGameState();
 	}
 	
+	/**
+	 * Simulate the game until it ends by changing level, no more lives remaining of the simulation count is reached.
+	 * @param lifeCount Amount of lives left.
+	 * @param currentLevel The current level number.
+	 * @return Returns the end game score.
+	 */
 	public double simulateEndGame(int lifeCount, int currentLevel) {		
 		int simulationCount = 0;
 		int bonus = 0;
@@ -128,7 +137,7 @@ public class Simulator {
 	
 	/**
 	 * Simulate game moves until we reach a decision point.
-	 * That is, make Pac-Man go straight ahead.
+	 * That is, make Pac-Man go straight ahead until that's no longer possible.
 	 */
 	public void playUntilDecisionPoint() {
 		MOVE lastMove = game.getPacmanLastMoveMade();
@@ -168,6 +177,10 @@ public class Simulator {
 		return true;
 	}
 	
+	/**
+	 * Get the best move from the current root node.
+	 * @return Returns the best move.
+	 */
 	public TreeNode getBestMove() {
 		TreeNode bestChild = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
@@ -200,6 +213,9 @@ public class Simulator {
 		this.root = root;
 	}
 	
+	/**
+	 * Calculates the distance to the specified ghost.
+	 */
 	public int distanceToGhost(GHOST ghost) {
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
 		int ghostPosition = game.getGhostCurrentNodeIndex(ghost);
@@ -209,6 +225,12 @@ public class Simulator {
 		return distance;
 	}
 	
+	/**
+	 * Calculates the bonus of the most recent step in-game.
+	 * @param lifeCount Amount of lives remaining.
+	 * @param currentLevel The current level number.
+	 * @return Returns the bonus of the most recent step.
+	 */
 	public int getStepBonus(int lifeCount, int currentLevel) {
 		int pathBonus = 0;
 		int pillBonus = 0;
@@ -248,7 +270,7 @@ public class Simulator {
 			pathBonus += LEVEL_COMPLETED_BONUS;
 		}
 		
-//		System.out.println("PATH BONUS: " + pathBonus);
+//		System.out.println("STEP BONUS: " + pathBonus);
 		
 		return pathBonus;
 	}

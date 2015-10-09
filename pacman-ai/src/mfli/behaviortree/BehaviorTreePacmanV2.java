@@ -1,3 +1,8 @@
+/**
+ * Mathias Flink Brandt
+ * mfli@itu.dk
+ */
+
 package mfli.behaviortree;
 
 import java.util.ArrayList;
@@ -61,6 +66,10 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return rootSelector;
 	}
 
+	/**
+	 * Determines which of the ghosts are considered threats.
+	 * @return Returns true if at least one ghost is considered threatening, false otherwise.
+	 */
 	private boolean findThreats() {
 		ArrayList<GHOST> threateningGhosts = findNearbyGhosts(params.distance_flee);
 
@@ -69,22 +78,25 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return threateningGhosts.size() > 0;
 	}
 
+	/**
+	 * Determine if all threatening ghosts are edible.
+	 * @return Returns true if all threatening ghosts are edible. False if at least one threatening ghost is non-edible.
+	 */
 	private boolean areThreatsEdible() {
 		ArrayList<GHOST> threateningGhosts = (ArrayList<GHOST>) context.get(Constants.THREATENING_GHOSTS);
-		// boolean allEdible = false;
 
 		for(GHOST ghost : threateningGhosts) {
 			if(!game.isGhostEdible(ghost)) {
-				// allEdible = false;
-				// break;
 				return false;
 			}
 		}
 
-		// return allEdible;
 		return true;
 	}
 
+	/**
+	 * Determines a possible escape route.
+	 */
 	private boolean findEscapeRoute() {
 		ArrayList<GHOST> threateningGhosts = (ArrayList<GHOST>) context.get(Constants.THREATENING_GHOSTS);
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
@@ -114,6 +126,10 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return true;
 	}
 
+	/**
+	 * Determines which of the ghosts are considered victims
+	 * @return Returns true if at least one ghost is considered a victim, false otherwise.
+	 */
 	private boolean findVictims() {
 		ArrayList<GHOST> victims = findNearbyGhosts(params.distance_attack);
 
@@ -122,23 +138,25 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return victims.size() > 0;
 	}
 
+	/**
+	 * Determine if victims are edible.
+	 * @return Returns true if all victims are edible. Returns false if at least one victim is non-edible.
+	 */
 	private boolean areVictimsEdible() {
 		ArrayList<GHOST> victims = (ArrayList<GHOST>) context.get(Constants.VICTIM_GHOSTS);
 		
-		// boolean allEdible = false;
-
 		for(GHOST ghost : victims) {
 			if(!game.isGhostEdible(ghost)) {
-				// allEdible = false;
-				// break;
 				return false;
 			}
 		}
 
-		// return allEdible;
 		return true;
 	}
 
+	/**
+	 * Determines the next move towards the nearest victim.
+	 */
 	private boolean attackNearestVictim() {
 		ArrayList<GHOST> victims = (ArrayList<GHOST>) context.get(Constants.VICTIM_GHOSTS);
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
@@ -160,6 +178,9 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return true;
 	}
 	
+	/**
+	 * Determines the location of the nearest power pill.
+	 */
 	private boolean findNearestPowerPill() {
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
 		int[] powerPillPositions = game.getActivePowerPillsIndices();
@@ -174,6 +195,10 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return true;
 	}
 	
+	/**
+	 * Determine if the nearest power pill is within range.
+	 * @return Returns true if the nearest power pill is within range, false otherwise.
+	 */
 	private boolean isPowerPillWithinRange() {
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
 		int closestPowerPillPosition = (int) context.get(Constants.CLOSEST_POWER_PILL_POSITION);
@@ -183,6 +208,9 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return distanceToPowerPill < params.distance_eat_power_pill;
 	}
 	
+	/**
+	 * Determines the next move towards the nearest power pill.
+	 */
 	private boolean eatPowerPill() {
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
 		int closestPowerPillPosition = (int) context.get(Constants.CLOSEST_POWER_PILL_POSITION);
@@ -192,6 +220,9 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return true;
 	}
 	
+	/**
+	 * Determines the location of the nearest pill.
+	 */
 	private boolean findNearestPill() {
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
 		int[] pills = game.getActivePillsIndices();
@@ -206,6 +237,9 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return true;
 	}
 	
+	/**
+	 * Determines the next move towards the nearest pill.
+	 */
 	private boolean eatPill() {
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
 		int closestPillPosition = (int) context.get(Constants.CLOSEST_PILL_POSITION);
@@ -215,6 +249,11 @@ public class BehaviorTreePacmanV2 extends Controller<MOVE> {
 		return true;
 	}
 
+	/**
+	 * Finds all ghosts that are closer to the player than the specified distance.
+	 * @param minimumDistance The minimum distance to the ghosts.
+	 * @return Returns a list of nearby ghosts.
+	 */
 	private ArrayList<GHOST> findNearbyGhosts(int minimumDistance) {
 		int pacManPosition = game.getPacmanCurrentNodeIndex();
 		ArrayList<GHOST> nearbyGhosts = new ArrayList<GHOST>();

@@ -1,3 +1,8 @@
+/**
+ * Mathias Flink Brandt
+ * mfli@itu.dk
+ */
+
 package mfli.behaviortree;
 
 import java.util.function.BooleanSupplier;
