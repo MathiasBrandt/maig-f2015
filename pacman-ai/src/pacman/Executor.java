@@ -58,9 +58,9 @@ public class Executor
 		///*
 		//run the game in asynchronous mode.
 		BehaviorTreeParameters params = new BehaviorTreeParameters();
-		params.distance_attack = 75;
-		params.distance_eat_power_pill = 30;
-		params.distance_flee = 10;
+		params.distance_flee = 10;				// 10
+		params.distance_attack = 63;			// 75
+		params.distance_eat_power_pill = 93;	// 30
 		boolean visual=true;
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);

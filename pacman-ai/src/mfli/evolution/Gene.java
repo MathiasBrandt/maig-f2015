@@ -11,6 +11,27 @@ public class Gene implements Comparable<Gene> {
 		this.fitness = 0;
 	}
 	
+	/**
+	 * Create a copy of the current gene.
+	 * @return A copy of the current gene.
+	 */
+	public Gene copy() {
+		Gene newGene = new Gene(chromosomeSize);
+		
+		for(int i = 0; i < chromosomeSize; i++) {
+			newGene.setChromosomeValue(i, getChromosomeValue(i));
+		}
+		
+		newGene.setFitness(getFitness());
+		
+		return newGene;
+	}
+	
+	/**
+	 * Breed the current gene with the given gene.
+	 * @param that The gene to breed with.
+	 * @return Two new children.
+	 */
 	public Gene[] reproduce(Gene that) {
 		Gene[] offspring = new Gene[2];
 		
@@ -73,6 +94,4 @@ public class Gene implements Comparable<Gene> {
 		
 		return 0;
 	}
-	
-	
 }

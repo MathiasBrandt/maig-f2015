@@ -14,146 +14,195 @@ import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Game;
 
 public class Darwin {
-	private static final int POPULATION_SIZE = 30;		// 1000
+	private static final int POPULATION_SIZE = 40;		// 1000
 	private static final int CHROMOSOME_SIZE = 3;		// 3
-	private static final int EVALUATION_COUNT = 1000;	// 1000
+	private static final int EVALUATION_COUNT = 500;	// 1000
 	private static final int RUN_COUNT = 4;				// 4
+	private static final int TIME_LIMIT = 2000;
 	
-	private ArrayList<Gene> population;
-	int bestFitness = Integer.MIN_VALUE;
-	private Gene bestGene = null;
-	
-	public Darwin(int populationSize, int chromosomeSize) {
-		Random random = new Random();
-		this.population = new ArrayList<Gene>(populationSize);
+	/**
+	 * Run the simulation.
+	 * 1. Create a base population
+	 * 2. Evaluate the current population
+	 * 3. Select the best gene from the current population
+	 * 4. If the best gene of the current population is the best across all evaluated populations, save it
+	 * 5. Select the best half of the current population
+	 * 6. Breed the best half of the current population to create a new population
+	 * 7. Go to step 2, until @EVALUATION_COUNT has been reached
+	 */
+	public void runSimulation() {
+		Gene bestOverallGene = null;
+		int bestOverallFitness = 0;
+		ArrayList<Gene> population = createBasePopulation();
 		
-		for(int i = 0; i < populationSize; i++) {
-			Gene gene = new Gene(chromosomeSize);
+		int i = 0;
+		while(i < EVALUATION_COUNT) {
+			System.out.println("Running evaluation " + i + " ...");
+			population = evaluatePopulation(population);
 			
-			for(int j = 0; j < chromosomeSize; j++) {
-				gene.setChromosomeValue(j, random.nextInt(101));
-			}
+			Gene bestGeneInPopulation = getBestGene(population);
+			System.out.println("Best gene fitness: " + bestGeneInPopulation.getFitness());
 			
-			this.population.add(gene);
-		}
-	}
-	
-	public void evaluatePopulation() {
-		for(int i = 0; i < population.size(); i++) {
-			Gene gene = population.get(i);
-			
-			BehaviorTreeParameters params = new BehaviorTreeParameters(gene.getChromosome());
-			simulateGame(gene, params);
-		}
-	}
-	
-	public ArrayList<Gene> performNaturalSelection() {
-		Collections.sort(population);
-
-		ArrayList<Gene> bestGenes = new ArrayList<Gene>(POPULATION_SIZE / 2);
-		
-		for(int i = 0; i < POPULATION_SIZE / 2; i++) {
-			bestGenes.add(population.get(i));
-		}
-		
-		System.out.println("Best genes avg fitness: " + getAverageFitness(bestGenes));
-		return bestGenes;
-	}
-	
-	public void breedBestGenes(ArrayList<Gene> bestGenes) {
-		ArrayList<Gene> allOffspring = new ArrayList<Gene>();
-		
-		for(int i = 0; i < bestGenes.size() - 1; i += 2) {
-			Gene gene = bestGenes.get(i);
-			Gene[] offspring = gene.reproduce(bestGenes.get(i+1));
-			allOffspring.add(offspring[0]);
-			allOffspring.add(offspring[1]);
-		}
-		
-		population = new ArrayList<Gene>();
-		population.addAll(bestGenes);
-		population.addAll(allOffspring);
-	}
-	
-	public void simulateGame(Gene gene, BehaviorTreeParameters params) {
-		Random random = new Random();
-		Game game;
-//		StarterGhosts ghostsController = new StarterGhosts();
-		Legacy2TheReckoning ghostsController = new Legacy2TheReckoning();
-//		Legacy ghostsController = new Legacy();
-		BehaviorTreePacmanV2 pacManController = new BehaviorTreePacmanV2(params);
-		int simulationCount = 0;
-		int totalScore = 0;
-		
-		for(int i = 0; i < RUN_COUNT; i++) {
-			game = new Game(random.nextLong());
-//			ghostsController = new RandomGhosts();
-			
-			while(!game.gameOver() && game.getTotalTime() < 2000) {
-				game.advanceGame(
-						pacManController.getMove(game.copy(), System.currentTimeMillis() + DELAY),
-						ghostsController.getMove(game.copy(), System.currentTimeMillis() + DELAY));
+			if(bestGeneInPopulation.getFitness() > bestOverallFitness) {
+				bestOverallFitness = bestGeneInPopulation.getFitness();
+				bestOverallGene = bestGeneInPopulation.copy();
 				
-				simulationCount++;
+				System.out.println("A superior gene configuration was discovered");
+				System.out.println("Best overall gene fitness: " + bestOverallGene.getFitness());
+				System.out.println("Best overall gene config : " + bestOverallGene);
 			}
 			
-			int runScore = game.getScore();
-//			System.out.println("Run score: " + runScore);
-//			System.out.println("GO: " + game.gameOver() + ", SC: " + simulationCount);
-			totalScore += runScore;
+			ArrayList<Gene> bestGenesInPopulation = performNaturalSelection(population);
+			
+			population = breedBestGenes(bestGenesInPopulation);
+			
+			i++;
 		}
 		
-		int averageScore = totalScore / RUN_COUNT;
-//		System.out.println(averageScore);
-		gene.setFitness(averageScore);
+		System.out.println("Simulation complete.");
+		System.out.println("Best Gene: " + bestOverallGene);
+		System.out.println("Best Gene Fitness: " + bestOverallGene.getFitness());
 	}
 	
-	public void saveBestGene() {
-		for(int i = 0; i < population.size(); i++) {
-			if(population.get(i).getFitness() > bestFitness) {
-				bestGene = population.get(i);
-				bestFitness = population.get(i).getFitness();
+	/**
+	 * Return a population of size @POPULATION_SIZE with random chromosome values.
+	 * @return The new population.
+	 */
+	public ArrayList<Gene> createBasePopulation() {
+		Random random = new Random();
+		ArrayList<Gene> population = new ArrayList<Gene>();
+		
+		for(int i = 0; i < POPULATION_SIZE; i++) {
+			Gene gene = new Gene(CHROMOSOME_SIZE);
+			
+			for(int j = 0; j < CHROMOSOME_SIZE; j++) {
+				gene.setChromosomeValue(j, random.nextInt(100));
 			}
+			
+			population.add(gene);
 		}
-	}
-	
-	public ArrayList<Gene> getPopulation() {
+		
 		return population;
 	}
 	
-	public int getPopulationAverageFitness() {
-		return getAverageFitness(population);
-	}
-	
-	public int getAverageFitness(ArrayList<Gene> list) {
-		int totalFitness = 0;
+	/**
+	 * Evaluates the given population.
+	 * @param population The population to evaluate.
+	 * @return A population with updated fitness scores.
+	 */
+	public ArrayList<Gene> evaluatePopulation(ArrayList<Gene> population) {
+		ArrayList<Gene> newPopulation = new ArrayList<Gene>();
 		
-		for(int i = 0; i < list.size(); i++) {
-			totalFitness += list.get(i).getFitness();
+		for(int i = 0; i < population.size(); i++) {
+			Gene gene = population.get(i);
+			
+			int score = simulateGame(gene, RUN_COUNT);
+			
+			gene.setFitness(score);
+			
+			newPopulation.add(gene);
 		}
 		
-		return totalFitness / list.size();
+		return newPopulation;
 	}
 	
-	public Gene getBestGene() {
-		return bestGene;
+	/**
+	 * Selects the best half of the given population according to current fitness score.
+	 * @param population The population to improve.
+	 * @return A population consisting of the best half of the input population.
+	 */
+	public ArrayList<Gene> performNaturalSelection(ArrayList<Gene> population) {
+		ArrayList<Gene> newPopulation = new ArrayList<Gene>(POPULATION_SIZE / 2);
+		Collections.sort(population);
+		
+		for(int i = 0; i < POPULATION_SIZE / 2; i++) {
+			newPopulation.add(population.get(i));
+		}
+		
+		return newPopulation;
+	}
+	
+	/**
+	 * Breeds every gene in the given population with its neighbour.
+	 * @param population The population to breed.
+	 * @return A population consisting of the input population and their offspring.
+	 */
+	public ArrayList<Gene> breedBestGenes(ArrayList<Gene> population) {
+		ArrayList<Gene> newPopulation = new ArrayList<Gene>();
+		ArrayList<Gene> offspring = new ArrayList<Gene>();
+		
+		for(int i = 0; i < population.size(); i += 2) {
+			Gene gene = population.get(i);
+			Gene[] geneOffspring = gene.reproduce(population.get(i + 1));
+			
+			offspring.add(geneOffspring[0]);
+			offspring.add(geneOffspring[1]);
+		}
+		
+		newPopulation.addAll(population);
+		newPopulation.addAll(offspring);
+		
+		return newPopulation;
+	}
+	
+	/**
+	 * Simulates a game using the chromosome values from the given gene.
+	 * @param gene The gene to evaluate.
+	 * @param runCount Number of times the simulation should be run.
+	 * @return The average end-of-game score.
+	 */
+	public int simulateGame(Gene gene, int runCount) {
+		Random random = new Random();
+		Game game;
+		Legacy2TheReckoning ghostsController = new Legacy2TheReckoning();
+		BehaviorTreeParameters params = new BehaviorTreeParameters(gene.getChromosome());
+		BehaviorTreePacmanV2 pacManController = new BehaviorTreePacmanV2(params);
+		int totalScore = 0;
+		
+		for(int i = 0; i < runCount; i++) {
+			game = new Game(random.nextLong());
+			
+			while(!game.gameOver() && game.getTotalTime() < TIME_LIMIT) {
+				game.advanceGame(
+						pacManController.getMove(game.copy(), System.currentTimeMillis() + DELAY),
+						ghostsController.getMove(game.copy(), System.currentTimeMillis() + DELAY));
+			}
+			
+			int runScore = game.getScore();
+			totalScore += runScore;
+		}
+		
+		int averageScore = totalScore / runCount;
+		return averageScore;
+	}
+	
+	/**
+	 * Gets the best gene in the given population according to best fitness score.
+	 * @param population The population in which to find the best gene.
+	 * @return The best gene in the population.
+	 */
+	public Gene getBestGene(ArrayList<Gene> population) {
+		Collections.sort(population);
+		return population.get(0);
+	}
+	
+	/**
+	 * Gets the average fitness score of a population.
+	 * @param population The population of which to find the average fitness score.
+	 * @return The average fitness score of the population.
+	 */
+	public int getAverageFitness(ArrayList<Gene> population) {
+		int totalFitness = 0;
+		
+		for(int i = 0; i < population.size(); i++) {
+			totalFitness += population.get(i).getFitness();
+		}
+		
+		return totalFitness / population.size();
 	}
 	
 	public static void main(String[] args) {
-		Darwin darwin = new Darwin(POPULATION_SIZE, CHROMOSOME_SIZE);
-		
-		for(int i = 0; i < EVALUATION_COUNT; i++) {
-			System.out.println("Running evaluation " + i + " ...");
-			darwin.evaluatePopulation();
-			System.out.println("Average population fitness: " + darwin.getPopulationAverageFitness());
-			darwin.saveBestGene();
-			ArrayList<Gene> bestGenes = darwin.performNaturalSelection();
-			darwin.breedBestGenes(bestGenes);
-		}
-		
-		System.out.println("Final population average fitness: " + darwin.getPopulationAverageFitness());
-		Gene bestGene = darwin.getBestGene();
-		System.out.println("Best Gene: " + bestGene);
-		System.out.println("Best Gene Fitness: " + bestGene.getFitness());
+		Darwin darwin = new Darwin();
+		darwin.runSimulation();
 	}
 }
